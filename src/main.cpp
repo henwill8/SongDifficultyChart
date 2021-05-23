@@ -57,9 +57,9 @@ Configuration& getConfig() {
 }
 
 struct GraphData {
-    Vector3 position = {0, 0, 0};
+    UnityEngine::Vector3 position = {0, 0, 0};
     UnityEngine::Vector3 rotation = {15, 0, 0};
-    Vector2 size = {300, 100};
+    UnityEngine::Vector2 size = {300, 100};
 };
 
 GraphData graphData;
@@ -71,10 +71,10 @@ float npsFontSize = 15.0f;//Maybe dont include for user use, too much options
 bool npsLinesEnabled = true;
 bool backgroundEnabled = true;
 bool enabled = true;
-Vector3 lineColor = {38.0f, 203.0f, 0.0f};
-Vector3 timeIndicatorColor = {220.0f, 0.0f, 30.0f};
-Vector3 npsLineColor = {32.0f, 100.0f, 168.0f};
-Vector3 backgroundColor = {0.0f, 0.0f, 0.0f};
+UnityEngine::Vector3 lineColor = {38.0f, 203.0f, 0.0f};
+UnityEngine::Vector3 timeIndicatorColor = {220.0f, 0.0f, 30.0f};
+UnityEngine::Vector3 npsLineColor = {32.0f, 100.0f, 168.0f};
+UnityEngine::Vector3 backgroundColor = {0.0f, 0.0f, 0.0f};
 
 static void SaveConfig() {
     if(!getConfig().config.HasMember("Enabled")) {
@@ -114,9 +114,9 @@ static void SaveConfig() {
 static void LoadConfig() {
     getConfig().Load();
     pointMultiplier = getConfig().config["Point Frequency"].GetFloat();
-    graphData.position = Vector3{getConfig().config["Graph"]["Position"]["X"].GetFloat(), getConfig().config["Graph"]["Position"]["Y"].GetFloat(), getConfig().config["Graph"]["Position"]["Z"].GetFloat()};
+    graphData.position = UnityEngine::Vector3{getConfig().config["Graph"]["Position"]["X"].GetFloat(), getConfig().config["Graph"]["Position"]["Y"].GetFloat(), getConfig().config["Graph"]["Position"]["Z"].GetFloat()};
     graphData.rotation = UnityEngine::Vector3{getConfig().config["Graph"]["Rotation"]["X"].GetFloat(), getConfig().config["Graph"]["Rotation"]["Y"].GetFloat(), getConfig().config["Graph"]["Rotation"]["Z"].GetFloat()};
-    graphData.size = Vector2{getConfig().config["Graph"]["Size"]["Width"].GetFloat(), getConfig().config["Graph"]["Size"]["Height"].GetFloat()};
+    graphData.size = UnityEngine::Vector2{getConfig().config["Graph"]["Size"]["Width"].GetFloat(), getConfig().config["Graph"]["Size"]["Height"].GetFloat()};
     npsLinesEnabled = getConfig().config["NPS Lines Enabled"].GetBool();
     backgroundEnabled = getConfig().config["Background Enabled"].GetBool();
     enabled = getConfig().config["Enabled"].GetBool();
@@ -319,7 +319,7 @@ MAKE_HOOK_OFFSETLESS(SongUpdate, void, AudioTimeSyncController* self) {
                         int noteIndex = start;
                         while(notes[noteIndex] < keyPoints[index+1] && noteIndex < notes.size()) {
                             if(notes[noteIndex] < keyPoints[index]) {
-                                start = noteIndex;
+                                start = noteIndex+1;
                             }
                             noteCount++;
                             noteIndex++;

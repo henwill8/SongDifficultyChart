@@ -4,17 +4,13 @@ using namespace QuestUI;
 using namespace UnityEngine::UI;
 using namespace UnityEngine;
 
-#define CreateIncrement(parent, floatConfigValue, name, decimals, increment, hasMin, hasMax, minValue, maxValue) QuestUI::BeatSaberUI::CreateIncrementSetting(parent, name, decimals, increment, floatConfigValue.GetFloat(), hasMin, hasMax, minValue, maxValue, UnityEngine::Vector2{}, il2cpp_utils::MakeDelegate<UnityEngine::Events::UnityAction_1<float>*>(classof(UnityEngine::Events::UnityAction_1<float>*), (void*)nullptr, +[](float value) { floatConfigValue.SetFloat(value); }))
+#define CreateIncrementMacro(parent, floatConfigValue, name, decimals, increment, hasMin, hasMax, minValue, maxValue) QuestUI::BeatSaberUI::CreateIncrementSetting(parent, name, decimals, increment, floatConfigValue.GetFloat(), hasMin, hasMax, minValue, maxValue, UnityEngine::Vector2{}, [this](float value) { floatConfigValue.SetFloat(value); })
 
-#define CreateToggle(parent, boolConfigValue, name) QuestUI::BeatSaberUI::CreateToggle(parent, name, boolConfigValue.GetBool(), il2cpp_utils::MakeDelegate<UnityEngine::Events::UnityAction_1<bool>*>(classof(UnityEngine::Events::UnityAction_1<bool>*), (void*)nullptr, +[](bool value) { boolConfigValue.SetBool(value); }))
+#define CreateToggleMacro(parent, boolConfigValue, name) QuestUI::BeatSaberUI::CreateToggle(parent, name, boolConfigValue.GetBool(), [this](bool newValue) { boolConfigValue.SetBool(newValue);})
 
-DEFINE_CLASS(SongDifficultyChart::UIController);
+DEFINE_TYPE(SongDifficultyChart::UIController);
 
 VerticalLayoutGroup* layout1;
-
-void createGraphSettings() {
-
-}
 
 void SongDifficultyChart::UIController::DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {
 	if(firstActivation) {
@@ -34,18 +30,18 @@ void SongDifficultyChart::UIController::DidActivate(bool firstActivation, bool a
 
 		Transform* Parent1 = layout1->get_transform();
 
-        CreateToggle(Parent1, getConfig().config["Enabled"], "Enabled");
-        CreateToggle(Parent1, getConfig().config["NPS Lines Enabled"], "NPS Lines Enabled");
-        CreateToggle(Parent1, getConfig().config["Background Enabled"], "Background Enabled");
-        CreateIncrement(Parent1, getConfig().config["Point Frequency"], "Point Frequency", 1, 0.1f, true, true, 0.1f, 5.0f);
-        CreateIncrement(Parent1, getConfig().config["Graph"]["Size"]["Width"], "Graph Width", 0, 10, true, false, 10, 0.0f);
-        CreateIncrement(Parent1, getConfig().config["Graph"]["Size"]["Height"], "Graph Height", 0, 10, true, false, 10, 0.0f);
-        CreateIncrement(Parent1, getConfig().config["Graph"]["Position"]["X"], "Pos X", 1, 0.5f, false, false, 0, 0.0f);
-        CreateIncrement(Parent1, getConfig().config["Graph"]["Position"]["Y"], "Pos Y", 1, 0.5f, false, false, 0, 0.0f);
-        CreateIncrement(Parent1, getConfig().config["Graph"]["Position"]["Z"], "Pos Z", 1, 0.5, false, false, 0, 0.0f);
-        CreateIncrement(Parent1, getConfig().config["Graph"]["Rotation"]["X"], "Rot X", 1, 5, false, false, 0, 0.0f);
-        CreateIncrement(Parent1, getConfig().config["Graph"]["Rotation"]["Y"], "Rot Y", 1, 5, false, false, 0, 0.0f);
-        CreateIncrement(Parent1, getConfig().config["Graph"]["Rotation"]["Z"], "Rot Z", 1, 5, false, false, 0, 0.0f);
+        CreateToggleMacro(Parent1, getConfig().config["Enabled"], "Enabled");
+        CreateToggleMacro(Parent1, getConfig().config["NPS Lines Enabled"], "NPS Lines Enabled");
+        CreateToggleMacro(Parent1, getConfig().config["Background Enabled"], "Background Enabled");
+        CreateIncrementMacro(Parent1, getConfig().config["Point Frequency"], "Point Frequency", 1, 0.1f, true, true, 0.1f, 5.0f);
+        CreateIncrementMacro(Parent1, getConfig().config["Graph"]["Size"]["Width"], "Graph Width", 0, 10, true, false, 10, 0.0f);
+        CreateIncrementMacro(Parent1, getConfig().config["Graph"]["Size"]["Height"], "Graph Height", 0, 10, true, false, 10, 0.0f);
+        CreateIncrementMacro(Parent1, getConfig().config["Graph"]["Position"]["X"], "Pos X", 1, 0.5f, false, false, 0, 0.0f);
+        CreateIncrementMacro(Parent1, getConfig().config["Graph"]["Position"]["Y"], "Pos Y", 1, 0.5f, false, false, 0, 0.0f);
+        CreateIncrementMacro(Parent1, getConfig().config["Graph"]["Position"]["Z"], "Pos Z", 1, 0.5, false, false, 0, 0.0f);
+        CreateIncrementMacro(Parent1, getConfig().config["Graph"]["Rotation"]["X"], "Rot X", 1, 5, false, false, 0, 0.0f);
+        CreateIncrementMacro(Parent1, getConfig().config["Graph"]["Rotation"]["Y"], "Rot Y", 1, 5, false, false, 0, 0.0f);
+        CreateIncrementMacro(Parent1, getConfig().config["Graph"]["Rotation"]["Z"], "Rot Z", 1, 5, false, false, 0, 0.0f);
     }
 }
 
