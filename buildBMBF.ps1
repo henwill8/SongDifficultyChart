@@ -8,7 +8,7 @@ if (-not ($PSVersionTable.PSEdition -eq "Core")) {
 }
 
 & $buildScript NDK_PROJECT_PATH=$PSScriptRoot APP_BUILD_SCRIPT=$PSScriptRoot/Android.mk NDK_APPLICATION_MK=$PSScriptRoot/Application.mk
-Compress-Archive -Path "./libs/arm64-v8a/libSongDifficultyChart.so","./mod.json","./extern/libbeatsaber-hook_1_3_3.so","./libs/arm64-v8a/libbeatsaber-hook_1_3_5.so","./libs/arm64-v8a/libcustom-types.so","./libs/arm64-v8a/libquestui.so" -DestinationPath "./$Name.zip" -Update
+Compress-Archive -Path "./libs/arm64-v8a/libSongDifficultyChart.so","./mod.json","./extern/libbeatsaber-hook_2_2_4.so" -DestinationPath "./$Name.zip" -Update
 $FileName = "./$Name.qmod"
 if(Test-Path $FileName) {
   Remove-Item $FileName

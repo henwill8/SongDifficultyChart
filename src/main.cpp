@@ -1,15 +1,15 @@
 #include "../include/main.hpp"
 #include "../include/codegen.hpp"
 #include "../include/UI.hpp"
-#include "../extern/beatsaber-hook/shared/config/config-utils.hpp"
-#include "../extern/beatsaber-hook/shared/utils/utils.h"
-#include "../extern/beatsaber-hook/shared/utils/logging.hpp"
-#include "../extern/modloader/shared/modloader.hpp"
-#include "../extern/beatsaber-hook/shared/utils/typedefs.h"
-#include "../extern/beatsaber-hook/shared/utils/il2cpp-utils.hpp"
-#include "../extern/beatsaber-hook/shared/utils/il2cpp-functions.hpp"
-#include "../extern/beatsaber-hook/shared/config/rapidjson-utils.hpp"
-#include "../extern/beatsaber-hook/shared/config/config-utils.hpp"
+#include "beatsaber-hook/shared/utils/utils.h"
+#include "beatsaber-hook/shared/utils/logging.hpp"
+#include "modloader/shared/modloader.hpp"
+#include "beatsaber-hook/shared/utils/typedefs.h"
+#include "beatsaber-hook/shared/utils/hooking.hpp"
+#include "beatsaber-hook/shared/utils/il2cpp-utils.hpp"
+#include "beatsaber-hook/shared/utils/il2cpp-functions.hpp"
+#include "beatsaber-hook/shared/config/rapidjson-utils.hpp"
+#include "beatsaber-hook/shared/config/config-utils.hpp"
 #include "../extern/questui/shared/QuestUI.hpp"
 #include "../extern/questui/shared/BeatSaberUI.hpp"
 #include "../extern/custom-types/shared/register.hpp"
@@ -78,7 +78,7 @@ UnityEngine::Vector3 backgroundColor = {0.0f, 0.0f, 0.0f};
 
 static void SaveConfig() {
     if(!getConfig().config.HasMember("Enabled")) {
-        log("Regenerating config!");
+        // log("Regenerating config!");
         getConfig().config.SetObject();
         auto& allocator = getConfig().config.GetAllocator();
 
@@ -105,9 +105,9 @@ static void SaveConfig() {
         getConfig().config.AddMember("Graph", graph, allocator);
 
         getConfig().Write();
-        log("Config regeneration complete!");
+        // log("Config regeneration complete!");
     } else {
-        log("Not regnerating config.");
+        // log("Not regnerating config.");
     }
 }
 
@@ -124,22 +124,22 @@ static void LoadConfig() {
 
 template<class T>
 UnityEngine::GameObject* FindObject(std::string name, bool byParent = true, bool getLastIndex = false) {
-    log("Finding GameObject of name "+name);
+    // log("Finding GameObject of name "+name);
     Array<T>* trs = UnityEngine::Resources::FindObjectsOfTypeAll<T>();
-    log("There are "+std::to_string(trs->Length())+" GameObjects");
+    // log("There are "+std::to_string(trs->Length())+" GameObjects");
     for(int i = 0; i < trs->Length(); i++) {
         if(i != trs->Length()-1 && getLastIndex) continue;
         UnityEngine::GameObject* go = trs->values[i]->get_gameObject();
         if(byParent) {
             go = go->get_transform()->GetParent()->get_gameObject();
         }
-        log(to_utf8(csstrtostr(UnityEngine::Transform::GetName(trs->values[i]))));
+        // log(to_utf8(csstrtostr(UnityEngine::Transform::GetName(trs->values[i]))));
         if(to_utf8(csstrtostr(UnityEngine::Transform::GetName(go))) == name){
-            log("Found GameObject");
+            // log("Found GameObject");
             return go;
         }
     }
-    log("Could not find GameObject");
+    // log("Could not find GameObject");
     return nullptr;
 }
 
@@ -249,7 +249,7 @@ void createLine(UnityEngine::Vector2 a, UnityEngine::Vector2 b, UnityEngine::Tra
     rt->set_localEulerAngles(UnityEngine::Vector3{0, 0, atan2(dir.y, dir.x) * 57.29578f});
 }
 
-MAKE_HOOK_OFFSETLESS(SongUpdate, void, AudioTimeSyncController* self) {
+MAKE_HOOK_MATCH(SongUpdate, &AudioTimeSyncController::Update, void, AudioTimeSyncController* self) {
     
     SongUpdate(self);
 
@@ -261,9 +261,9 @@ MAKE_HOOK_OFFSETLESS(SongUpdate, void, AudioTimeSyncController* self) {
             
             songLength = *il2cpp_utils::RunMethod<float>(self, "get_songLength");
             pointFrequency = songLength / 60 / pointMultiplier;
-            log("Point Frequency is %f / 60 / %f = %f", songLength, pointMultiplier, pointFrequency);
+            // log("Point Frequency is %f / 60 / %f = %f", songLength, pointMultiplier, pointFrequency);
 
-            log("Getting all notes");
+            // log("Getting all notes");
             auto bocc = UnityEngine::Object::FindObjectOfType<GlobalNamespace::BeatmapObjectCallbackController*>();
             auto beatmapLinesData = reinterpret_cast<GlobalNamespace::BeatmapData*>(bocc->initData->beatmapData)->beatmapLinesData;
             for (int i = 0; i < beatmapLinesData->Length(); i++) {
@@ -283,10 +283,10 @@ MAKE_HOOK_OFFSETLESS(SongUpdate, void, AudioTimeSyncController* self) {
             }
 
             if(hasNotes) {
-                log("Sorting notes");
+                // log("Sorting notes");
                 std::sort(notes.begin(), notes.end());
                 
-                log("Getting keypoints");
+                // log("Getting keypoints");
                 float time = 0;
                 std::vector<float> keyPoints;
                 while(time < songLength) {
@@ -294,9 +294,9 @@ MAKE_HOOK_OFFSETLESS(SongUpdate, void, AudioTimeSyncController* self) {
                     time += pointFrequency;
                 }
                 keyPoints.push_back(songLength);
-                log("There are %i keypoints", keyPoints.size());
+                // log("There are %i keypoints", keyPoints.size());
 
-                log("Getting note counts");
+                // log("Getting note counts");
                 maxNoteCount = 0;
                 int index = 0;
                 int start;
@@ -332,17 +332,17 @@ MAKE_HOOK_OFFSETLESS(SongUpdate, void, AudioTimeSyncController* self) {
                     graphPoints.push_back(std::make_pair(keyPoints[index], noteCount));
                     index++;
                 }
-                log("Max note count is %i", maxNoteCount);
+                // log("Max note count is %i", maxNoteCount);
                 float maxNPS = maxNoteCount / pointFrequency / 2;
-                log("Max NPS is %f", maxNPS);
+                // log("Max NPS is %f", maxNPS);
                 
-                log("Creating chart game object");
+                // log("Creating chart game object");
                 graphGO = UnityEngine::GameObject::New_ctor(createcsstr("GraphGO"));
                 bool getLastIndex = false;
                 if(FindObject<MultiplayerController*>("MultiplayerController", false) == nullptr) {
                     getLastIndex = true;
                 }
-                log("Get last index is %i", getLastIndex);
+                // log("Get last index is %i", getLastIndex);
                 graphGO->get_transform()->SetParent(FindObject<ComboUIController*>("ComboPanel", false, getLastIndex)->get_transform());
                 graphGO->get_transform()->set_position(UnityEngine::Vector3{-graphData.size.x/200 + graphData.position.x, -2.8f + graphData.position.y, 6 + graphData.position.z});
                 graphGO->get_transform()->set_eulerAngles(graphData.rotation);
@@ -362,7 +362,7 @@ MAKE_HOOK_OFFSETLESS(SongUpdate, void, AudioTimeSyncController* self) {
                     }
                 }
 
-                log("Creating lines");
+                // log("Creating lines");
                 for(int i = 0; i < graphPoints.size()-1; i++) {
                     createLine(
                         UnityEngine::Vector2{getXPos(i), getYPos(i)},
@@ -371,7 +371,7 @@ MAKE_HOOK_OFFSETLESS(SongUpdate, void, AudioTimeSyncController* self) {
                     );
                 }
 
-                log("Creating player time indicator");
+                // log("Creating player time indicator");
                 playerTime = UnityEngine::GameObject::New_ctor(createcsstr("PlayerTime"));
                 playerTime->get_transform()->SetParent(graphGO->get_transform(), false);
                 playerTime->get_transform()->set_localPosition(UnityEngine::Vector3{getXPos(0), getYPos(0), 0});
@@ -383,7 +383,7 @@ MAKE_HOOK_OFFSETLESS(SongUpdate, void, AudioTimeSyncController* self) {
                 songTimeXIndex = 0;
                 songTimeYIndex = 0;
                 createdGraph = true;
-                log("Finished creating song difficulty chart!");
+                // log("Finished creating song difficulty chart!");
             }
         } else if(hasNotes && createdGraph) {
             if(songTime < 3) {
@@ -396,9 +396,9 @@ MAKE_HOOK_OFFSETLESS(SongUpdate, void, AudioTimeSyncController* self) {
     }
 }
 
-MAKE_HOOK_OFFSETLESS(SongStart, void, Il2CppObject* self) {
+MAKE_HOOK_MATCH(SongStart, &AudioTimeSyncController::Awake, void, AudioTimeSyncController* self) {
 
-    log("SongStart");
+    // log("SongStart");
 
     songTime = 0;
     notes.clear();
@@ -410,7 +410,7 @@ MAKE_HOOK_OFFSETLESS(SongStart, void, Il2CppObject* self) {
 
     SongStart(self);
 
-    log("Finished Song Start Setup");
+    // log("Finished Song Start Setup");
 }
 
 extern "C" void setup(ModInfo& info) {
@@ -427,11 +427,11 @@ extern "C" void setup(ModInfo& info) {
 extern "C" void load() {
     QuestUI::Init();
 
-    custom_types::Register::RegisterType<SongDifficultyChart::UIController>();
+    custom_types::Register::AutoRegister();
     QuestUI::Register::RegisterModSettingsViewController<SongDifficultyChart::UIController*>(modInfo, "Song Difficulty Chart");
 
-    log("Installing hooks...");
-    INSTALL_HOOK_OFFSETLESS(logger().get(), SongUpdate, il2cpp_utils::FindMethodUnsafe("", "AudioTimeSyncController", "Update", 0));
-    INSTALL_HOOK_OFFSETLESS(logger().get(), SongStart, il2cpp_utils::FindMethodUnsafe("", "AudioTimeSyncController", "Awake", 0));
-    log("Installed all hooks!");
+    // log("Installing hooks...");
+    INSTALL_HOOK(logger().get(), SongUpdate);
+    INSTALL_HOOK(logger().get(), SongStart);
+    // log("Installed all hooks!");
 }

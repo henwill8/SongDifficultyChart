@@ -8,7 +8,7 @@ using namespace UnityEngine;
 
 #define CreateToggleMacro(parent, boolConfigValue, name) QuestUI::BeatSaberUI::CreateToggle(parent, name, boolConfigValue.GetBool(), [this](bool newValue) { boolConfigValue.SetBool(newValue);})
 
-DEFINE_TYPE(SongDifficultyChart::UIController);
+DEFINE_TYPE(SongDifficultyChart, UIController);
 
 VerticalLayoutGroup* layout1;
 
