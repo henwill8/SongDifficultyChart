@@ -167,6 +167,8 @@ bool createdGraph;
 
 float pointFrequency;
 
+UnityEngine::Material* uiMat;
+
 UnityEngine::Vector2 graphOffset = {10, 0};
 
 float convertToGraphSizeX(float value) {
@@ -215,7 +217,9 @@ void createBackground(UnityEngine::GameObject* go, UnityEngine::Vector3 pos, Uni
     UnityEngine::GameObject* background = UnityEngine::GameObject::New_ctor(createcsstr("Background"));
     background->get_transform()->SetParent(go->get_transform(), false);
     background->get_transform()->set_localPosition(UnityEngine::Vector3{pos.x, pos.y, 0});
-    background->AddComponent<UnityEngine::UI::Image*>()->set_color(UnityEngine::Color{backgroundColor.x, backgroundColor.y, backgroundColor.z, 0.5f});
+    UnityEngine::UI::Image* image = background->AddComponent<UnityEngine::UI::Image*>();
+    image->set_color(UnityEngine::Color{backgroundColor.x, backgroundColor.y, backgroundColor.z, 0.5f});
+    image->set_material(uiMat);
     UnityEngine::RectTransform* backgroundRT = background->GetComponent<UnityEngine::RectTransform*>();
     backgroundRT->set_sizeDelta(UnityEngine::Vector2{size.x, size.y});
 }
@@ -231,7 +235,9 @@ void createNPSLine(UnityEngine::GameObject* go, UnityEngine::Vector3 pos, int nu
     UnityEngine::GameObject* lineGO = UnityEngine::GameObject::New_ctor(createcsstr("NPSLine"));
     lineGO->get_transform()->SetParent(go->get_transform(), false);
     lineGO->get_transform()->set_localPosition(UnityEngine::Vector3{pos.x+graphData.size.x/2-convertToGraphSizeX(30.5f), pos.y-convertToGraphSizeY(3), 0});
-    lineGO->AddComponent<UnityEngine::UI::Image*>()->set_color(UnityEngine::Color{npsLineColor.x/255.0f, npsLineColor.y/255.0f, npsLineColor.z/255.0f, 0.3f});
+    UnityEngine::UI::Image* image = lineGO->AddComponent<UnityEngine::UI::Image*>();
+    image->set_color(UnityEngine::Color{npsLineColor.x/255.0f, npsLineColor.y/255.0f, npsLineColor.z/255.0f, 0.3f});
+    image->set_material(uiMat);
 
     UnityEngine::RectTransform* rt = lineGO->GetComponent<UnityEngine::RectTransform*>();
     rt->set_sizeDelta(UnityEngine::Vector2{graphData.size.x-convertToGraphSizeX(7.0f), std::min(npsLineThickness * (graphData.size.x/400.0f), npsLineThickness * (graphData.size.y/100.0f))});
@@ -240,7 +246,9 @@ void createNPSLine(UnityEngine::GameObject* go, UnityEngine::Vector3 pos, int nu
 void createLine(UnityEngine::Vector2 a, UnityEngine::Vector2 b, UnityEngine::Transform* parent) {
     UnityEngine::GameObject* go = UnityEngine::GameObject::New_ctor(createcsstr("line"));
     go->get_transform()->SetParent(parent, false);
-    go->AddComponent<UnityEngine::UI::Image*>()->set_color(UnityEngine::Color{lineColor.x/255.0f, lineColor.y/255.0f, lineColor.z/255.0f, 1});
+    UnityEngine::UI::Image* image = go->AddComponent<UnityEngine::UI::Image*>();
+    image->set_color(UnityEngine::Color{lineColor.x/255.0f, lineColor.y/255.0f, lineColor.z/255.0f, 1});
+    image->set_material(uiMat);
     UnityEngine::RectTransform* rt = go->GetComponent<UnityEngine::RectTransform*>();
     UnityEngine::Vector2 dir = (b - a).get_normalized();
     float dist = UnityEngine::Vector2::Distance(a, b);
@@ -375,7 +383,9 @@ MAKE_HOOK_MATCH(SongUpdate, &AudioTimeSyncController::Update, void, AudioTimeSyn
                 playerTime = UnityEngine::GameObject::New_ctor(createcsstr("PlayerTime"));
                 playerTime->get_transform()->SetParent(graphGO->get_transform(), false);
                 playerTime->get_transform()->set_localPosition(UnityEngine::Vector3{getXPos(0), getYPos(0), 0});
-                playerTime->AddComponent<UnityEngine::UI::Image*>()->set_color(UnityEngine::Color{timeIndicatorColor.x/255.0f, timeIndicatorColor.y/255.0f, timeIndicatorColor.z/255.0f, 1});
+                UnityEngine::UI::Image* timeImage = playerTime->AddComponent<UnityEngine::UI::Image*>();
+                timeImage->set_color(UnityEngine::Color{timeIndicatorColor.x/255.0f, timeIndicatorColor.y/255.0f, timeIndicatorColor.z/255.0f, 1});
+                timeImage->set_material(uiMat);
                 UnityEngine::RectTransform* playerTimeRT = playerTime->GetComponent<UnityEngine::RectTransform*>();
                 float size = std::min(timeIndicatorSize * (graphData.size.x/400.0f), timeIndicatorSize * (graphData.size.y/100.0f));
                 playerTimeRT->set_sizeDelta(UnityEngine::Vector2{size, size});
@@ -399,6 +409,8 @@ MAKE_HOOK_MATCH(SongUpdate, &AudioTimeSyncController::Update, void, AudioTimeSyn
 MAKE_HOOK_MATCH(SongStart, &AudioTimeSyncController::Awake, void, AudioTimeSyncController* self) {
 
     // log("SongStart");
+
+    uiMat = QuestUI::ArrayUtil::First(UnityEngine::Resources::FindObjectsOfTypeAll<UnityEngine::Material*>(), [](UnityEngine::Material* x) { return to_utf8(csstrtostr(x->get_name())) == "UINoGlow"; });
 
     songTime = 0;
     notes.clear();
