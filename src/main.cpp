@@ -427,7 +427,7 @@ MAKE_HOOK_MATCH(SongStart, &AudioTimeSyncController::Awake, void, AudioTimeSyncC
 
 extern "C" void setup(ModInfo& info) {
     info.id = "SongDifficultyChart";
-    info.version = "0.1.0";
+    info.version = "0.6.9";
     modInfo = info;
     
     getConfig().Load();
